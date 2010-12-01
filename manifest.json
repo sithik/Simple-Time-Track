@@ -1,17 +1,21 @@
 {
 "update_url":"http://clients2.google.com/service/update2/crx",
-"background_page": "background.html",
  "name": "Chrome Time Track",
- "description": "Chrome Time Track is jTrack port for Google Chrome",
- "version": "1.0.0", 
+ "description": "Chrome Time Track - how time spend on tasks ?",
+ "version": "1.2",
  "icons": 
  { 
-   "128": "task128x128.png" 
+   "128": "timer128x128.png"
  }, 
  "permissions": [ "tabs", "http://*/*", "https://*/*" ],
- "browser_action":
+
+"browser_action":
  {
-   "default_icon": "task32x32.png",
-   "default_title": "jTrack"
- }
+   "default_title": "Chrome Time Track",
+   "default_icon": "timer32x32.png",
+   "popup": "popup.html"
+ },
+
+ "background_page": "back.html"
+ 
 }

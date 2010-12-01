@@ -3,81 +3,84 @@
   <head>
     <title>Chrome Time Tracking aplication</title>
     <meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="css/jtrack.css" />
-    <link rel="SHORTCUT ICON" type="image/ico" href="task32x32.png" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="SHORTCUT ICON" type="image/ico" href="timer32x32.png" />
   </head>
   <body>
-    <div id="jtrack-holder">
-      <div id="jtrack-bar">
-        <a href="#" class="jtrack-create button">New task</a>
-        <a href="#" class="jtrack-remove-all button">Delete all</a>
+
+    <div id="holder">
+      <div id="bar">
+        <a href="#" class="create button"><span></span> New task</a>
+        <a href="#" class="remove-all button"><span></span> Delete all</a>
       </div>
-      
-      <div id="jtrack-content">
-        
-        <div id="jtrack-form-list" class="jtrack-form"></div>
+
+      <div id="content">
+
+        <!-- list of tasks -->
+        <div id="form-list" class="form"></div>
 
         <!-- create form -->
-        <div id="jtrack-form-create" class="jtrack-form" style="display: none">
+        <div id="form-create" class="form" style="display: none">
           <p>
-            <label for="jtrack-task-name">Task name</label>
-            <input type="text" name="jtrack-task-name" id="jtrack-task-name" class="jtrack-text" />
+            <label for="task-name">Task name</label>
+            <input type="text" name="task-name" id="task-name" class="text" />
           </p>
-          <p>
-            <input type="button" id="jtrack-button-create" value="Save" />
-            <a href="#" class="jtrack-cancel button" rel="jtrack-form-create">Cancel</a>
+          <p class="buttons">
+            <input type="button" id="button-create" value="Save" />
+            <input type="button" id="form-create.cancel-button" class="cancel" rel="form-create" value="Cancel" />
           </p>
-          <p style="display: none" id="jtrack-create-status"></p>
+          <p style="display: none" id="create-status"></p>
         </div>
-        
-        <!-- update forms -->
-        <div id="jtrack-form-update" class="jtrack-form" style="display: none">
+
+        <!-- update form -->
+        <div id="form-update" class="form" style="display: none">
+          <input type="hidden" name="task-id" id="task-id" value="" />
           <p>
-            <label for="jtrack-task-name">Task name</label>
-            <input type="text" name="jtrack-task-name" id="jtrack-task-name" class="jtrack-text" />
+            <label for="task-name">Task name</label>
+            <input type="text" name="task-name" id="task-name" class="text" />
           </p>
           <p>
-            <label>Created at</label>
-            <span id="created"></span>
+            <label for="task-time">Task time</label>
+            <input type="text" name="task-time" id="task-time" class="text" />
           </p>
-          <p>
-            <input type="button" id="jtrack-button-update" value="Update" />
-            <a href="#" class="jtrack-cancel button" rel="jtrack-form-update">Cancel</a>
+          <p class="buttons">
+            <input type="button" id="button-update" value="Update" />
+            <input type="button" id="form-update.cancel-button" class="cancel" rel="form-update" value="Cancel" />
           </p>
-          <p style="display: none" id="jtrack-update-status"></p>
+          <p style="display: none" id="update-status"></p>
         </div>
-        
+
         <!-- remove confirm -->
-        <div id="jtrack-form-remove" class="jtrack-form" style="display: none">
-          <p id="jtrack-remove-confirm"></p>
-          <p>
-            <input type="button" id="jtrack-button-remove" value="Delete" />
-            <a href="#" class="jtrack-cancel button" rel="jtrack-form-remove">Cancel</a>
+        <div id="form-remove" class="form" style="display: none">
+          <p id="remove-confirm"></p>
+          <p class="buttons">
+            <input type="button" id="button-remove" value="Delete" />
+            <input type="button" id="form-remove.cancel-button" class="cancel" rel="form-remove" value="Cancel" />
           </p>
         </div>
 
-        <!-- remove all confirm -->
-        <div id="jtrack-form-remove-all" class="jtrack-form" style="display: none">
+        <!-- Delete all confirm -->
+        <div id="form-remove-all" class="form" style="display: none">
           <p>Are you sure you want to delete all tasks?</p>
-          <p>
-            <input type="button" id="jtrack-button-remove-all" value="Yes" />
-            <a href="#" class="jtrack-cancel button" rel="jtrack-form-remove-all">Cancel</a>
+          <p class="buttons">
+            <input type="button" id="button-remove-all" value="Yes" />
+            <input type="button" id="form-remove-all.cancel-button" class="cancel" rel="form-remove-all" value="Cancel" />
           </p>
         </div>
-        
+
       </div>
 
-      <div id="footer">Created by <a href="http://www.omdesign.cz">Roman Ožana</a> based on <a href="http://bulgaria-web-developers.com/projects/javascript/jtrack/">jTrack</a></div>
+      <div id="footer">Created by <a href="http://www.omdesign.cz" title="Webdesign with taste" target="_blank">Roman Ožana</a></div>
     </div>
 
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="js/jquery.json-2.2.min.js"></script>
-    <script type="text/javascript" src="js/domcached-0.1-jquery.js"></script>
-    <script type="text/javascript" src="js/jtrack.js"></script>
+    <script type="text/javascript" src="js/tasks.js"></script>
+
     <script type="text/javascript">
       $(function () {
-        jTask.init();
+        taskInterface.init();
       });
     </script>
+
   </body>
 </html>

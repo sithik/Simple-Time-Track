@@ -1,6 +1,9 @@
-﻿Chrome time track
+Chrome time track
+-----------------
 
 Is Google chrome extension based on jTrack (http://bulgaria-web-developers.com/projects/javascript/jtrack/)
+
+- Special thanks to http://www.olawolska.com/ for great hand drawn icons!
 
 You can download extension from : https://chrome.google.com/extensions/detail/hbhcgdpbdenjjpekdajanfgchlgacdea
 
