@@ -3,7 +3,11 @@
  * @author Roman Ožana <ozana@omdesign.cz>
  * @link www.omdesign.cz
  * @license MIT
- * @version 30.11.2010
+ * @version 3.12.2010
+ *
+ * Special thanks to jTrack for inspiration !
+ * http://bulgaria-web-developers.com/projects/javascript/jtrack/
+ *
  */
 
 var db = openDatabase('timetrack', '1.0', 'Time track database', 2 * 1024 * 1024);
@@ -12,7 +16,7 @@ var db = openDatabase('timetrack', '1.0', 'Time track database', 2 * 1024 * 1024
  * Create TASKS table if not exists in local database
  */
 db.transaction(function (tx) {
-  tx.executeSql('CREATE TABLE IF NOT EXISTS tasks(ID INTEGER PRIMARY KEY ASC, name TEXT, time TEXT, start DATETIME, running BOOLEAN)', [], null, onError); // table creation
+  tx.executeSql('CREATE TABLE IF NOT EXISTS tasks(ID INTEGER PRIMARY KEY ASC, name TEXT, time INTEGER, start DATETIME, running BOOLEAN)', [], null, onError); // table creation
 // id - unique autoincrement identificator of task
 // name - name of taks or caption of task
 // time - keep cumulative time from begining to STOP press
@@ -21,70 +25,17 @@ db.transaction(function (tx) {
 });
 
 /**
- * Generate NEXT ID for database
- */
-function nextID()
-{
-  var id = localStorage['lastid']; // get last id from local storage
-  if (id == undefined)
-  {
-    id = 1; // generate first ID
-  } else {
-    id++; // generate next ID
-  }
-  localStorage['lastid'] = id; // save to localStorage
-  return id;
-}
-
-/**
- * Update taks name
- */
-function updateName(id, name)
-{
- 
-}
-
-/**
- * Start task
- */
-function startTask(id)
-{
-  var start = new Date(); // set start to NOW
-  db.transaction(function(tx) {
-    tx.executeSql("UPDATE tasks SET running = ?, start = ? WHERE id = ?", [true, start, id], null, onError);
-  });
-}
-
-/**
- * Add time to cumulative time attribute
- */
-function stopTask(id)
-{
-  // TODO calculate time diff
-  db.transaction(function(tx) {
-    tx.executeSql("UPDATE tasks SET running = ? WHERE id = ?", [false, id], null, onError);
-  });
-}
-
-/**
  * Delete all records (drop table)
  */
-function dropTable()
+function dropTaskTable()
 {
   db.transaction(function(tx) {
-    tx.executeSql("DROP TABLE tasks", [],null, onError);
+    tx.executeSql("DROP TABLE tasks", [],function (tx, results) {
+      alert('Table tasks was droped');
+    }, onError);
   });
 }
-
-/**
- * Remove database and localStorage from browser
- * @experimental
- */
-function uninstall()
-{
-  dropTable(); 
-  localStorage.removeItem("lastid");
-}
+// dropTaskTable();
 
 /**
  * Exception hook
@@ -98,17 +49,18 @@ function onError(tx, error)
  * Time tracking user interface
  */
 
-var taskInterface = {
-  
-  bind: function () {
 
+var taskInterface = {
+  intervals: new Array,
+  bind: function () {
+    
     /* common elements
      ------------------------------------------------------------------------ */
     
     // cancel buttons click
     $(".cancel").live("click", function (e) {
       e.preventDefault();
-      $("#" + $(this).attr("rel")).hide();
+      $("#" + $(this).attr("rel")).hide().hide().find("input:text").val("");
       $("#form-list").show();
     });
 
@@ -125,7 +77,7 @@ var taskInterface = {
     // create new task > confirm click
     $("#button-create").live("click", function ()
     {
-      var id = nextID(); // render next ID
+      var id = taskInterface.nextID(); // render next ID
       var name = $("#form-create :input[name='task-name']").val(); // get name
       
       db.transaction(function(tx) {
@@ -147,7 +99,7 @@ var taskInterface = {
       e.preventDefault();
       $(".form").hide();
       $("#button-remove").attr("rel", $(this).attr("rel"));
-      $("#remove-confirm").html("Are you sure? You want to delete <strong>" + $(this).attr("title") + "</strong>?");
+      $("#remove-confirm").html("Are you sure? You want to <strong>delete " + $(this).attr("title") + "</strong>?");
       $("#form-remove").show();
     });
 
@@ -159,6 +111,9 @@ var taskInterface = {
       db.transaction(function(tx) {
         tx.executeSql("DELETE FROM tasks WHERE id=?", [id],
           function(tx, result) {
+
+            window.clearInterval(taskInterface.intervals[id]);
+            
             taskInterface.index();
           },
           onError);
@@ -181,6 +136,11 @@ var taskInterface = {
 
       db.transaction(function(tx) {
         tx.executeSql("DELETE FROM tasks", [], function(tx, results) {
+
+          for (iid in taskInterface.intervals) {
+            window.clearInterval(taskInterface.intervals[iid]);
+          }
+            
           taskInterface.index();
         },onError);
       });
@@ -204,7 +164,7 @@ var taskInterface = {
           {
             $("#form-update :input[name='task-id']").val(id);
             $("#form-update :input[name='task-name']").val(results.rows.item(0).name);
-            $("#form-update :input[name='task-time']").val(results.rows.item(0).time);
+            $("#form-update :input[name='task-time']").val(taskInterface.hms(results.rows.item(0).time));
             $("#form-update").slideDown();
           } else
           {
@@ -223,21 +183,17 @@ var taskInterface = {
       var time = $("#form-update :input[name='task-time']").val(); // get task time
 
       db.transaction(function(tx) {
-        tx.executeSql("UPDATE tasks SET name = ?, time = ? WHERE id = ?", [name, time, id], function (tx, results) {
+        tx.executeSql("UPDATE tasks SET name = ?, time = ? WHERE id = ?", [name, taskInterface.sec(time), id], function (tx, results) {
           taskInterface.index();
         }, onError);
       });
     });
 
    
-  /*
-
     $(".play").live("click", function (e) {
       e.preventDefault();
-    //jTask.toggleTimer($(this), $(this).attr("rel"));
+      taskInterface.toggleTimer($(this).attr("rel"));
     })
-
-    */
 
   },
 
@@ -245,20 +201,35 @@ var taskInterface = {
     var out = "";
 
     db.transaction(function (tx) {
-      tx.executeSql('SELECT * FROM tasks', [], function (tx, results) {
+      tx.executeSql('SELECT * FROM tasks ORDER BY id DESC', [], function (tx, results) {
 
         var len = results.rows.length, i;
         
         if (len > 0)
         {
           for (i = 0; i < len; i++){
-            out += '<p class="item" id="item' + results.rows.item(i).ID + '">';
-            out +='<label>' + results.rows.item(i).name + '</label>';
-            out += '<a href="#" class="update" rel="' + results.rows.item(i).ID + '" title="' + results.rows.item(i).name + '">Edit</a> | ';
-            out += '<a href="#" class="remove" rel="' + results.rows.item(i).ID + '" title="' + results.rows.item(i).name + '">Delete</a>';
-            out += '<span class="timer">' + this.hms(results.rows.item(i).time) + '</span>';
-            out += '<a href="#" class="power ' + (results.rows.item(i).running ? 'power-off' : 'power-on') + '" title="Timer on/off" rel="' + results.rows.item(i).ID + '"></a>';
+            var task = results.rows.item(i);
+            
+            out += '<p class="item' + (task.running == true ? ' running' : '') + '" id="item' + task.ID + '" rel="' + task.ID +'">';
+            out +='<label>' + task.name + '</label>';
+            out += '<a href="#" class="update" rel="' + task.ID + '" title="' + task.name + '">Edit</a> | ';
+            out += '<a href="#" class="remove" rel="' + task.ID + '" title="' + task.name + '">Delete</a>';
+            
+            if (task.running == true)
+            {
+              var start = new Date(task.start);
+              var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
+              out += '<span class="timer">' + taskInterface.hms(dif) + '</span>';
+            } else {  
+              out += '<span class="timer">' + taskInterface.hms(task.time) + '</span>';
+            }
+            
+            out += '<a href="#" class="power play ' + (task.running == true ? 'running' : '') + '" title="Timer on/off" rel="' + task.ID + '"></a>';
             out += '</p>';
+
+            if (task.running == true) {
+              taskInterface.startTask(task); // start task
+            }
           }
         } else {
           out = "<p class=\"notask\"><label>No tasks</label></p>"
@@ -274,36 +245,98 @@ var taskInterface = {
     this.bind();
     this.index();
   },
+ 
 
-  timerScheduler: function (namespace) {
-    clearInterval(this.intervals[namespace]);
-    this.intervals[namespace] = setInterval(function () {
-      if ($.DOMCached.get("started", namespace)) {
-        jTask.timer[namespace]++;
-        $.DOMCached.set("timer", jTask.timer[namespace], false, namespace);
-        $(".jtrack-power[rel='" + namespace + "']").siblings(".jtrack-timer").eq(0).text(jTask.hms(jTask.timer[namespace]));
-      }
-    }, 1000);
+  toggleTimer: function (id) {
+    db.transaction(function (tx) {
+      tx.executeSql('SELECT * FROM tasks WHERE ID = ?', [id], function (tx, results) {
+        if (results.rows.length > 0)
+        {
+          var task = results.rows.item(0);
+          $('#item' + id).toggleClass('running');
+          $('#item' + id + ' .power').toggleClass('running');
+          
+          if (task.running == true)
+          {
+            taskInterface.stopTask(task);
+          } else {
+            taskInterface.startTask(task);
+          }
+        } else
+        {
+          alert("Task " + id + " not found sorry!");
+        }
+      }, null);
+    });
   },
 
-  toggleTimer: function (jQ, namespace) {
-    if (!$.DOMCached.get("started", namespace)) {
-      $.DOMCached.set("started", true, false, namespace);
-      this.timer[namespace] = $.DOMCached.get("timer", namespace);
-      this.timerScheduler(namespace);
-      jQ.addClass("jtrack-power-on");
-      chrome.browserAction.setBadgeText({
-        text:'RUN'
-      });
+  //////////////////////////////////////////////////////////////////////////////
+  // start task
+  //////////////////////////////////////////////////////////////////////////////
+
+  startTask:  function (task)
+  {
+    window.clearInterval(taskInterface.intervals[task.ID]); // remove timer
+    
+    var start = new Date(); // set start to NOW
+    
+    if (task.running == true)
+    {
+      start = new Date(task.start);
     } else {
-      $.DOMCached.set("started", false, false, namespace);
-      jQ.removeClass("jtrack-power-on");
-      chrome.browserAction.setBadgeText({
-        text:''
+      db.transaction(function(tx) {
+        tx.executeSql("UPDATE tasks SET running = ?, start = ? WHERE id = ?", [1, start, task.ID], null, onError);
       });
     }
+    
+    // setup interval for counter
+    taskInterface.intervals[task.ID] = window.setInterval(function () {
+      var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
+      $('#item' + task.ID + ' .timer').text(taskInterface.hms(dif));
+    }, 500);
+            
   },
+  
+  //////////////////////////////////////////////////////////////////////////////
+  // stop task
+  //////////////////////////////////////////////////////////////////////////////
 
+  stopTask: function (task)
+  {
+    window.clearInterval(taskInterface.intervals[task.ID]); // remove timer
+    
+    var start, stop, dif = 0;
+
+    db.transaction(function(tx) {
+      tx.executeSql('SELECT * FROM tasks WHERE id = ?', [task.ID], function (tx, results) {
+        if (results.rows.length > 0)
+        {
+          start = new Date(results.rows.item(0).start); // read from DB
+          stop = new Date(); // now
+          dif = Number(results.rows.item(0).time) + Math.floor((stop.getTime() - start.getTime()) / 1000); // time diff in seconds
+
+          $('#item' + task.ID + ' .timer').text(taskInterface.hms(dif));
+          
+        } else {
+          alert('Task ' + task.ID + ' not found!');
+        }
+      }, null, onError);
+    });
+
+    // update record
+    db.transaction(function(tx) {
+      tx.executeSql("UPDATE tasks SET running = ?, time = ? WHERE id = ?", [0, Number(dif), task.ID], null, onError);
+    });
+
+    
+
+  },
+  
+  
+  //////////////////////////////////////////////////////////////////////////////
+  // convert sec to hms
+  //////////////////////////////////////////////////////////////////////////////
+  
   hms: function (secs) {
     secs = secs % 86400;
     var time = [0, 0, secs], i;
@@ -315,5 +348,28 @@ var taskInterface = {
       }
     }
     return time.join(':');
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  // convert h:m:s to sec
+  //////////////////////////////////////////////////////////////////////////////
+  
+  sec: function (hms) {
+    var t = String(hms).split(":");
+    return Number(parseFloat(t[0] * 3600) + parseFloat(t[1]) * 60 + parseFloat(t[2]));
+  },
+
+  nextID: function ()
+  {
+    var id = localStorage['lastid']; // get last id from local storage
+    if (id == undefined)
+    {
+      id = 1; // generate first ID
+    } else {
+      id++; // generate next ID
+    }
+    localStorage['lastid'] = id; // save to localStorage
+    return id;
   }
+
 };
