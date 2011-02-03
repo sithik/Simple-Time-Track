@@ -1,6 +1,6 @@
 @CHARSET "UTF-8";
 
-body{ font-family: Arial, Tahoma, sans-serif;	font-size: 11px;  width: 300px; height: auto; padding:0; margin:0 auto;background: #fff;}
+body{ font-family: Arial, Tahoma, sans-serif;	font-size: 11px;  width: 330px; height: auto; padding:0; margin:0 auto;background: #fff;}
 a {text-decoration: none;color:#555;}
 
 /* top bar
@@ -9,7 +9,7 @@ a {text-decoration: none;color:#555;}
 #bar {	padding:0.8em 1em; overflow:auto; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#efefef)); border-bottom: 1px solid #e0e0e0;}
 #bar .remove-all {float:right!important;}
 #bar .create {float:left!important;}
-#bar .remove-all span {background: transparent url(../img/delete.png) 50% 50% no-repeat; display:block; width: 16px; height:28px; float:left; margin: 0 10px 0 0;}
+#bar .remove-all span {background: transparent url(../img/delete.png) 50% 50% no-repeat; display:block; width: 20px; height:28px; float:left; margin: 0 10px 0 0;}
 #bar .create span {background: transparent url(../img/new.png) 50% 50% no-repeat; display:block; width: 16px; height:28px; float:left; margin: 0 10px 0 0;}
 
 /* buttons
@@ -17,17 +17,21 @@ a {text-decoration: none;color:#555;}
 
 input[type=button],
 input[type=submit],
-#bar .button {color:#555;text-decoration: none;display: block; padding:0 17px;font-weight: bold; line-height: 28px;
-              border-radius:3px;
-              background: #ffffff;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#e5e5e5));
-              border: 1px solid #eee;
-              -webkit-box-shadow: 1px 1px 1px #ccc;box-shadow: 0 0 5px #555;
-              float:left;
+#bar a.button {color:#444;text-decoration: none;display: block; padding:0 17px;font-weight: bold; line-height: 28px;
+               border-radius:3px;
+               background: #ffffff;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#EAEAEA));
+               border: 1px solid #eee;
+               box-shadow: 1px 1px 1px rgba(0,0,0,0.6);
+               float:left;
+               border:1px solid #ddd;
+               position: relative;
+               cursor: pointer;
 }
+#bar a.button:active {top:1px;}
 
 input[type=button]:hover,
 input[type=submit]:hover,
-#bar .button:hover { color:#444; border-color: #e1e1e1; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(70%,#e5e5e5)); /* webkit */}
+#bar .button:hover { color:#555;}
 
 p.buttons {padding: 1em 2em!important; overflow:hidden;}
 .cancel {float:right!important;}
@@ -40,7 +44,7 @@ input[type=text] {	border: solid 1px #D6D6BE;	background-color: #fcfff4;	padding
 input[type=text]:focus {	border: solid 1px #fff286;	background-color: #fff;}
 
 .form {overflow-y: auto;}
-.form label {	display: block;	font-weight: bold;text-align: left;}
+.form label {	display: block;	font-weight: bold;text-align: left; font-size: 16px;}
 
 
 /* content
@@ -52,11 +56,11 @@ input[type=text]:focus {	border: solid 1px #fff286;	background-color: #fff;}
 /* item
 ----------------------------------------------------------------------------- */
 
-.item {text-align: left;border-bottom: solid 1px #ccc; padding: 10px!important; position: relative; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f7f8), color-stop(100%,#dfdfdf)); display:block; overflow:hidden;}
-.item a.power {background: url(../img/play.png) 0 0 no-repeat; 	bottom: 10px;	display: block;	height: 16px;	position: absolute;	right: 5px;	width: 16px;}
-.item a.running {background: url(../img/stop.png) 0 0 no-repeat;}
-.item span.timer{	position: absolute;	right: 5px;	top: 5px;}
-p.running {background: #feffe8; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#feffe8), color-stop(100%,#d6dbbf));}
+.item {text-align: left;border-bottom: solid 1px #ccc; padding: 14px 12px!important; position: relative; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#efefef)); display:block; overflow:hidden;}
+.item a.power {background: url(../img/play.png) 0 0 no-repeat; 	display: block; position: absolute;	right: 3px; width: 32px;height: 32px; bottom: 14px;right: 10px;}
+.item a.running {background: url(../img/pause.png) 0 0 no-repeat;}
+.item span.timer{	position: absolute;	right: 50px;	top: 23px; font-size: 17px;}
+p.running {background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fcfff4), color-stop(100%,#e9e9ce));}
 
 /* other elements
 ----------------------------------------------------------------------------- */

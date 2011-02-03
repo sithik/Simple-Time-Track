@@ -46,10 +46,8 @@ function onError(tx, error)
 }
 
 /**
- * Time tracking user interface
+ * Time tracking user interface Javascript
  */
-
-
 var taskInterface = {
   intervals: new Array,
   bind: function () {
@@ -106,6 +104,7 @@ var taskInterface = {
     // delete task > confirm deletion
     $("#button-remove").live("click", function () {
       $("#form-remove").hide();
+      
       var id = $(this).attr("rel");
 
       db.transaction(function(tx) {
@@ -152,6 +151,7 @@ var taskInterface = {
      ------------------------------------------------------------------------ */
 
     // update task
+    
     $(".update").live("click", function (e) {
       e.preventDefault();
       $(".form").hide();
@@ -167,7 +167,7 @@ var taskInterface = {
             $("#form-update :input[name='task-time']").val(taskInterface.hms(results.rows.item(0).time));
             $("#form-update").slideDown();
           } else
-          {
+{
             alert("Task " + id + "not found!");
           }
         }, null);
@@ -189,6 +189,23 @@ var taskInterface = {
       });
     });
 
+    /* reset task
+     ------------------------------------------------------------------------ */
+
+    $(".reset").live("click", function (e) {
+      e.preventDefault();
+      $(".form").hide();
+
+      var id  = $(this).attr("rel");
+      
+      db.transaction(function(tx) {
+        tx.executeSql("UPDATE tasks SET time = ? WHERE id = ?", [0 , id], function (tx, results) {
+          taskInterface.index();
+        }, onError);
+      });
+      
+    });
+    
    
     $(".play").live("click", function (e) {
       e.preventDefault();
@@ -212,8 +229,9 @@ var taskInterface = {
             
             out += '<p class="item' + (task.running == true ? ' running' : '') + '" id="item' + task.ID + '" rel="' + task.ID +'">';
             out +='<label>' + task.name + '</label>';
-            out += '<a href="#" class="update" rel="' + task.ID + '" title="' + task.name + '">Edit</a> | ';
-            out += '<a href="#" class="remove" rel="' + task.ID + '" title="' + task.name + '">Delete</a>';
+            out += '<a href="#" class="update" rel="' + task.ID + '" title="Edit: ' + task.name + '">Edit</a> | ';
+            out += '<a href="#" class="reset" rel="' + task.ID + '" title="Reset: ' + task.name + '">Reset</a> | ';
+            out += '<a href="#" class="remove" rel="' + task.ID + '" title="Delete: ' + task.name + '">Delete</a>';
             
             if (task.running == true)
             {
@@ -244,6 +262,7 @@ var taskInterface = {
   init: function () {
     this.bind();
     this.index();
+    this.toggleRunText();
   },
  
 
@@ -262,12 +281,14 @@ var taskInterface = {
           } else {
             taskInterface.startTask(task);
           }
-        } else
-        {
+
+          taskInterface.toggleRunText();
+          
+        } else {
           alert("Task " + id + " not found sorry!");
         }
       }, null);
-    });
+    });   
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -275,7 +296,7 @@ var taskInterface = {
   //////////////////////////////////////////////////////////////////////////////
 
   startTask:  function (task)
-  {
+  {   
     window.clearInterval(taskInterface.intervals[task.ID]); // remove timer
     
     var start = new Date(); // set start to NOW
@@ -294,7 +315,6 @@ var taskInterface = {
       var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
       $('#item' + task.ID + ' .timer').text(taskInterface.hms(dif));
     }, 500);
-            
   },
   
   //////////////////////////////////////////////////////////////////////////////
@@ -327,18 +347,38 @@ var taskInterface = {
     db.transaction(function(tx) {
       tx.executeSql("UPDATE tasks SET running = ?, time = ? WHERE id = ?", [0, Number(dif), task.ID], null, onError);
     });
-
     
-
   },
   
+
+  //////////////////////////////////////////////////////////////////////////////
+  // toggle RUN text on icon
+  //////////////////////////////////////////////////////////////////////////////
+  
+  toggleRunText: function()
+  {
+    db.transaction(function(tx) {
+      tx.executeSql('SELECT * FROM tasks WHERE running = ?', [1], function (tx, results) {
+        if (results.rows.length > 0)
+        {
+          chrome.browserAction.setBadgeText({
+            text: 'RUN'
+          });
+        } else {
+          chrome.browserAction.setBadgeText({
+            text: ''
+          });
+        }
+      }, null, onError);
+    });
+  },
   
   //////////////////////////////////////////////////////////////////////////////
   // convert sec to hms
   //////////////////////////////////////////////////////////////////////////////
   
   hms: function (secs) {
-    secs = secs % 86400;
+    //secs = secs % 86400; // fix 24:00:00 overlay
     var time = [0, 0, secs], i;
     for (i = 2; i > 0; i--) {
       time[i - 1] = Math.floor(time[i] / 60);

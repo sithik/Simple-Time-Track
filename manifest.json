@@ -2,7 +2,7 @@
 "update_url":"http://clients2.google.com/service/update2/crx",
  "name": "Chrome Time Track",
  "description": "Chrome Time Track - how much time spend on tasks?",
- "version": "2.1",
+ "version": "2.2",
  "icons": 
  { 
    "128": "timer128x128.png"
