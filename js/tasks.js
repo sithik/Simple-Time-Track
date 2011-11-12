@@ -45,11 +45,57 @@ function onError(tx, error)
   alert(error.message);
 }
 
+var tasks = {
+  
+  insert : function (id, name) {
+    db.transaction(function(tx) {
+      tx.executeSql("INSERT INTO tasks (id, name, time, start, running) VALUES (?, ?, ?, ?, ?)", [id, name, 0, new Date(), false],
+        function(tx, result) {
+          taskInterface.index();
+        },
+        onError);
+    });
+  },
+  
+  update : function () {
+    
+  },
+  
+  remove : function (id) {
+    db.transaction(function(tx) {
+      tx.executeSql("DELETE FROM tasks WHERE id=?", [id],
+        function(tx, result) {
+          window.clearInterval(taskInterface.intervals[id]);
+          taskInterface.index();
+        },
+        onError);
+    });
+  },
+  
+  removeall: function() {
+    db.transaction(function(tx) {
+      tx.executeSql("DELETE FROM tasks", [], function(tx, results) {
+
+        for (iid in taskInterface.intervals) {
+          window.clearInterval(taskInterface.intervals[iid]);
+        }
+            
+        taskInterface.index();
+      },onError);
+    });
+  }
+  
+  
+}
+
+
 /**
  * Time tracking user interface Javascript
  */
 var taskInterface = {
+  
   intervals: new Array,
+  
   bind: function () {
     
     /* common elements
@@ -75,18 +121,16 @@ var taskInterface = {
     // create new task > confirm click
     $("#button-create").live("click", function ()
     {
-      var id = taskInterface.nextID(); // render next ID
-      var name = $("#form-create :input[name='task-name']").val(); // get name
-      
-      db.transaction(function(tx) {
-        tx.executeSql("INSERT INTO tasks (id, name, time, start, running) VALUES (?, ?, ?, ?, ?)", [id, name, 0, new Date(), false],
-          function(tx, result) {
-            taskInterface.index();
-          },
-          onError);
-      });
-  
+      tasks.insert(taskInterface.nextID(), $("#form-create :input[name='task-name']").val());
       $("#form-create").hide().find("input:text").val("");
+    });
+    
+    // create new task > enter press
+    $('#task-name').keydown(function(e) {
+      if (e.keyCode == 13) {
+        tasks.insert(taskInterface.nextID(), $("#form-create :input[name='task-name']").val());
+        $("#form-create").hide().find("input:text").val("");
+      }
     });
 
     /* delete one task
@@ -104,19 +148,7 @@ var taskInterface = {
     // delete task > confirm deletion
     $("#button-remove").live("click", function () {
       $("#form-remove").hide();
-      
-      var id = $(this).attr("rel");
-
-      db.transaction(function(tx) {
-        tx.executeSql("DELETE FROM tasks WHERE id=?", [id],
-          function(tx, result) {
-
-            window.clearInterval(taskInterface.intervals[id]);
-            
-            taskInterface.index();
-          },
-          onError);
-      });
+      tasks.remove($(this).attr("rel"));
     });
     
     /* delete all tasks
@@ -132,17 +164,6 @@ var taskInterface = {
     // remove all tasks > confirm deletion
     $("#button-remove-all").live("click", function () {
       $("#form-remove-all").hide();
-
-      db.transaction(function(tx) {
-        tx.executeSql("DELETE FROM tasks", [], function(tx, results) {
-
-          for (iid in taskInterface.intervals) {
-            window.clearInterval(taskInterface.intervals[iid]);
-          }
-            
-          taskInterface.index();
-        },onError);
-      });
       
       localStorage.removeItem("lastid"); // remove last id from local storage
     });
@@ -157,6 +178,7 @@ var taskInterface = {
       $(".form").hide();
 
       var id  = $(this).attr("rel");
+      // TODO load function
       db.transaction(function (tx) {
         tx.executeSql('SELECT * FROM tasks WHERE ID = ?', [id], function (tx, results) {
 
@@ -166,8 +188,7 @@ var taskInterface = {
             $("#form-update :input[name='task-name']").val(results.rows.item(0).name);
             $("#form-update :input[name='task-time']").val(taskInterface.hms(results.rows.item(0).time));
             $("#form-update").slideDown();
-          } else
-{
+          } else {
             alert("Task " + id + "not found!");
           }
         }, null);
