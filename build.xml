@@ -2,18 +2,15 @@
 <project basedir=".">
 
   <target name="build.app">
-    <zip destfile="chrome_time_track.zip">
-      
+    <zip destfile="simple_time_track.zip">
       <zipfileset dir="css" prefix="css"/>
       <zipfileset dir="img" prefix="img"/>
       <zipfileset dir="js" prefix="js"/>
-
       <zipfileset file="manifest.json"  />
       <zipfileset file="popup.html" />
       <zipfileset file="readme.txt" />
       <zipfileset file="timer128x128.png" />
       <zipfileset file="timer32x32.png" />
-      
     </zip>
   </target>
   

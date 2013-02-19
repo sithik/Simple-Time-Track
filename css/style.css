@@ -1,6 +1,6 @@
 @CHARSET "UTF-8";
-
-body{ font-family: Arial, Tahoma, sans-serif;	font-size: 11px;  width: 330px; height: auto; padding:0; margin:0 auto;background: #fff;}
+html {  width: 330px; height: auto; }
+body{ font-family: Arial, Tahoma, sans-serif; font-size: 11px; padding:0; margin:0 auto;background: #fff;overflow: hidden;}
 a {text-decoration: none;color:#555;}
 
 /* top bar
@@ -77,6 +77,6 @@ p.remove-confirm strong {color:#333;}
 /* footer
 ----------------------------------------------------------------------------- */
 
-#footer {text-align: center; color:#ddd;margin:0; padding:5px;}
+#footer {background:#fefefe;color:#bbb;margin:0; padding:5px; border-top: 1px solid #eee;}
 #footer a {color:#ddd;}
 #footer a:hover {color:#333;}
