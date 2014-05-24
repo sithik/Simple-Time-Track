@@ -168,6 +168,51 @@ var taskInterface = {
       localStorage.removeItem("lastid"); // remove last id from local storage
     });
 
+    /* export all tasks
+     ------------------------------------------------------------------------ */
+    
+    // export all tasks
+    $(".export-all").live("click", function (e) {
+        db.transaction(function (tx) {
+          tx.executeSql('SELECT * FROM tasks ORDER BY id DESC', [], function (tx, results) {
+            var out = '';
+            var len = results.rows.length, i;
+            
+            if (len > 0)
+            {
+              for (i = 0; i < len; i++){
+                var task = results.rows.item(i);
+                if (task.running == true)
+                {
+                  var start = new Date(task.start);
+                  var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
+                  out += task.ID + ',' + task.name + ',' + taskInterface.hms(dif);
+                } else {  
+                  out += task.ID + ',' + task.name + ',' + taskInterface.hms(task.time);
+                }
+                out += '\n';
+                
+              }
+            } else {
+              out = "No tasks"
+            }
+              
+            /**
+             * @todo the file is now downloading as 'download' without the file extension
+             *       need to make it somehow download as 'simple_time_track.csv'. below code
+             *       supposed to work, but it is not working
+                var link = document.createElement("a");
+                link.setAttribute("download", "simple_time_track.csv");
+                link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(out));
+                link.click(); // This will download the data file named "my_data.csv"
+             */
+            window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(out));
+              
+          }, null);
+        });
+    });
+
+
     /* update task name
      ------------------------------------------------------------------------ */
 
