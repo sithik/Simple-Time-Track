@@ -190,8 +190,8 @@ var taskInterface = {
                 } else {  
                   out += task.ID + ',' + task.name + ',' + taskInterface.hms(task.time);
                 }
-                out += '\n';
-                
+                var start = new Date(task.start);
+                out += ','+start.getFullYear()+'-'+(parseInt(start.getMonth())+1).toString()+'-'+start.getDate()+'\n';
               }
             } else {
               out = "No tasks"
