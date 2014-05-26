@@ -16,8 +16,9 @@ var db = openDatabase('timetrack', '1.0', 'Time track database', 2 * 1024 * 1024
  * Create TASKS table if not exists in local database
  */
 db.transaction(function (tx) {
-  tx.executeSql('CREATE TABLE IF NOT EXISTS tasks(ID INTEGER PRIMARY KEY ASC, name TEXT, time INTEGER, start DATETIME, running BOOLEAN)', [], null, onError); // table creation
+  tx.executeSql('CREATE TABLE IF NOT EXISTS tasks(ID INTEGER PRIMARY KEY ASC, project_name TEXT, name TEXT, time INTEGER, start DATETIME, running BOOLEAN)', [], null, onError); // table creation
 // id - unique autoincrement identificator of task
+// project_name - project name or caption of the project
 // name - name of taks or caption of task
 // time - keep cumulative time from begining to STOP press
 // start - we need some guide for calculate time increase
@@ -47,9 +48,9 @@ function onError(tx, error)
 
 var tasks = {
   
-  insert : function (id, name) {
+  insert : function (id, project_name, name) {
     db.transaction(function(tx) {
-      tx.executeSql("INSERT INTO tasks (id, name, time, start, running) VALUES (?, ?, ?, ?, ?)", [id, name, 0, new Date(), false],
+      tx.executeSql("INSERT INTO tasks (id, project_name, name, time, start, running) VALUES (?, ?, ?, ?, ?, ?)", [id, project_name, name, 0, new Date(), false],
         function(tx, result) {
           taskInterface.index();
         },
@@ -115,20 +116,20 @@ var taskInterface = {
     $(".create").live("click", function (e) {
       e.preventDefault();
       $(".form").hide();
-      $("#form-create").slideDown().find("input[name='task-name']").focus();
+      $("#form-create").slideDown().find("input[name='task-project-name']").focus();
     });
 
     // create new task > confirm click
     $("#button-create").live("click", function ()
     {
-      tasks.insert(taskInterface.nextID(), $("#form-create :input[name='task-name']").val());
+      tasks.insert(taskInterface.nextID(), $("#form-create :input[name='task-project-name']").val(), $("#form-create :input[name='task-name']").val());
       $("#form-create").hide().find("input:text").val("");
     });
     
     // create new task > enter press
     $('#task-name').keydown(function(e) {
       if (e.keyCode == 13) {
-        tasks.insert(taskInterface.nextID(), $("#form-create :input[name='task-name']").val());
+        tasks.insert(taskInterface.nextID(), $("#form-create :input[name='task-project-name']").val(), $("#form-create :input[name='task-name']").val());
         $("#form-create").hide().find("input:text").val("");
       }
     });
@@ -186,9 +187,9 @@ var taskInterface = {
                 {
                   var start = new Date(task.start);
                   var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
-                  out += task.ID + ',' + task.name + ',' + taskInterface.hms(dif);
+                  out += task.ID + ',' + task.project_name + ',' + task.name + ',' + taskInterface.hms(dif);
                 } else {  
-                  out += task.ID + ',' + task.name + ',' + taskInterface.hms(task.time);
+                  out += task.ID + ',' + task.project_name + ',' + task.name + ',' + taskInterface.hms(task.time);
                 }
                 var start = new Date(task.start);
                 out += ','+start.getFullYear()+'-'+(parseInt(start.getMonth())+1).toString()+'-'+start.getDate()+'\n';
@@ -230,6 +231,7 @@ var taskInterface = {
           if (results.rows.length > 0)
           {
             $("#form-update :input[name='task-id']").val(id);
+            $("#form-update :input[name='task-project-name']").val(results.rows.item(0).project_name);
             $("#form-update :input[name='task-name']").val(results.rows.item(0).name);
             $("#form-update :input[name='task-time']").val(taskInterface.hms(results.rows.item(0).time));
             $("#form-update").slideDown();
@@ -245,11 +247,12 @@ var taskInterface = {
       $("#form-update").hide();
       
       var id = $("#form-update :input[name='task-id']").val(); // get id
+      var project_name = $("#form-update :input[name='task-project-name']").val(); // get name
       var name = $("#form-update :input[name='task-name']").val(); // get name
       var time = $("#form-update :input[name='task-time']").val(); // get task time
 
       db.transaction(function(tx) {
-        tx.executeSql("UPDATE tasks SET name = ?, time = ? WHERE id = ?", [name, taskInterface.sec(time), id], function (tx, results) {
+        tx.executeSql("UPDATE tasks SET project_name = ?, name = ?, time = ? WHERE id = ?", [project_name, name, taskInterface.sec(time), id], function (tx, results) {
           taskInterface.index();
         }, onError);
       });
@@ -294,7 +297,7 @@ var taskInterface = {
             var task = results.rows.item(i);
             
             out += '<p class="item' + (task.running == true ? ' running' : '') + '" id="item' + task.ID + '" rel="' + task.ID +'">';
-            out +='<label>' + task.name + '</label>';
+            out +='<label>' + task.name + '<br/><small>' + task.project_name + '</small></label>';
             out += '<a href="#" class="update" rel="' + task.ID + '" title="Edit: ' + task.name + '">Edit</a> | ';
             out += '<a href="#" class="reset" rel="' + task.ID + '" title="Reset: ' + task.name + '">Reset</a> | ';
             out += '<a href="#" class="remove" rel="' + task.ID + '" title="Delete: ' + task.name + '">Delete</a>';

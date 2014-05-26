@@ -46,6 +46,7 @@ input[type=text]:focus {	border: solid 1px #fff286;	background-color: #fff;}
 
 .form {overflow-y: auto;}
 .form label {	display: block;	font-weight: bold;text-align: left; font-size: 16px;}
+.form label small { font-size: 10px !important;}
 
 
 /* content
