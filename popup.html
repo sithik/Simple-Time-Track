@@ -13,6 +13,7 @@
         <a href="#" class="create button"><span></span> New task</a>
         <a href="#" class="remove-all button"><span></span> Delete all</a>
         <a href="#" class="export-all button"><span></span> Export all</a>
+        <a href="#" class="settings button" id="settings"><span></span> Settings</a>
       </div>
 
       <div id="content">
@@ -35,6 +36,24 @@
             <input type="button" id="form-create.cancel-button" class="cancel" rel="form-create" value="Cancel" />
           </p>
           <p style="display: none" id="create-status"></p>
+        </div>
+        
+        <!-- settings form -->
+        <div id="form-settings" class="form" style="display: none">
+          <input type="hidden" name="id" id="id" value="" />
+          <p>
+            <label for="api_url">API URL</label>
+            <input type="text" name="api_url" id="api_url" class="text" />
+          </p>
+          <p>
+            <label for="user_id">User ID</label>
+            <input type="text" name="user_id" id="user_id" class="text" />
+          </p>
+          <p class="buttons">
+            <input type="button" id="button-settings-update" value="Update" />
+            <input type="button" id="form-settings.cancel-button" class="cancel" rel="form-settings" value="Cancel" />
+          </p>
+          <p style="display: none" id="update-status"></p>
         </div>
 
         <!-- update form -->

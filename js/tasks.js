@@ -26,6 +26,16 @@ db.transaction(function (tx) {
 });
 
 /**
+ * Create SETTINGS table if not exists in local database
+ */
+db.transaction(function (tx) {
+  tx.executeSql('CREATE TABLE IF NOT EXISTS settings(ID INTEGER PRIMARY KEY ASC, api_url TEXT, user_id TEXT)', [], null, onError); // table creation
+// id - unique autoincrement identificator of task
+// api_url - api url to upload times
+// user_id - email id or user id to be uploaded to api
+});
+
+/**
  * Delete all records (drop table)
  */
 function dropTaskTable()
@@ -33,6 +43,11 @@ function dropTaskTable()
   db.transaction(function(tx) {
     tx.executeSql("DROP TABLE tasks", [],function (tx, results) {
       alert('Table tasks was droped');
+    }, onError);
+  });
+  db.transaction(function(tx) {
+    tx.executeSql("DROP TABLE settings", [],function (tx, results) {
+      alert('Table settings was droped');
     }, onError);
   });
 }
@@ -165,7 +180,7 @@ var taskInterface = {
     // remove all tasks > confirm deletion
     $("#button-remove-all").live("click", function () {
       $("#form-remove-all").hide();
-      
+      tasks.removeall();
       localStorage.removeItem("lastid"); // remove last id from local storage
     });
 
@@ -213,6 +228,61 @@ var taskInterface = {
         });
     });
 
+    /* update settings
+     ------------------------------------------------------------------------ */
+
+    // update settings
+    
+    $("#settings").live("click", function (e) {
+      e.preventDefault();
+      $(".form").hide();
+      
+      // TODO load function
+      db.transaction(function (tx) {
+        tx.executeSql('SELECT * FROM settings WHERE ID = ?', [1], function (tx, results) {
+
+          if (results.rows.length > 0)
+          {
+            $("#form-settings :input[name='api_url']").val(results.rows.item(0).api_url);
+            $("#form-settings :input[name='user_id']").val(results.rows.item(0).user_id);
+            $("#form-settings :input[name='id']").val(1);
+            $("#form-settings").slideDown();
+            
+          } else {
+            alert("No settings found! Enter new");
+            $("#form-settings :input[name='api_url']").val("");
+            $("#form-settings :input[name='user_id']").val("");
+            $("#form-settings :input[name='id']").val(0); // 0 means - create new
+            $("#form-settings").slideDown();
+          }
+        }, null);
+      });
+    });
+
+    // update settings > save
+    $("#button-settings-update").live("click", function () {
+      $("#form-settings").hide();
+      
+      var id = $("#form-settings :input[name='id']").val(); // get id
+      var api_url = $("#form-settings :input[name='api_url']").val(); // get api url
+      var user_id = $("#form-settings :input[name='user_id']").val(); // get user id
+      
+      db.transaction(function(tx) {
+        if(id == 0){
+          tx.executeSql("INSERT INTO settings (id, api_url, user_id) VALUES (?,?,?)", [1, api_url, user_id], function (tx, results) {
+            taskInterface.index();
+          }, onError);
+          alert("New setting added");
+        }
+        else{
+          tx.executeSql("UPDATE settings SET api_url = ?, user_id = ? WHERE id = ?", [api_url, user_id, 1], function (tx, results) {
+            taskInterface.index();
+          }, onError);
+          alert("New setting updated");
+        }
+        
+      });
+    });
 
     /* update task name
      ------------------------------------------------------------------------ */
