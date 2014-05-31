@@ -14,6 +14,8 @@
    "default_title": "Simple Time Track",
    "default_icon": "timer32x32.png",
    "default_popup": "popup.html"
- }
- 
+ },
+ "permissions": [
+    "http://*/"
+  ]
 }

@@ -58,6 +58,7 @@ function dropTaskTable()
  */
 function onError(tx, error)
 {
+  console.log(tx.message);
   alert(error.message);
 }
 
@@ -182,6 +183,124 @@ var taskInterface = {
       $("#form-remove-all").hide();
       tasks.removeall();
       localStorage.removeItem("lastid"); // remove last id from local storage
+    });
+    /* upload tasks to API
+     ------------------------------------------------------------------------ */
+    
+    // upload all tasks
+    $("#upload").live("click", function (e) {
+        e.preventDefault();
+        
+        db.transaction(function(tx) {
+            tx.executeSql("SELECT id, api_url, user_id FROM settings WHERE id = ? ", [1],
+                function(tx, results) {
+                    //taskInterface.index();
+                    var len = results.rows.length;
+                    
+                    if (len > 0)
+                    {
+                        setting = results.rows.item(0);
+                        //console.log(setting);
+                        
+                        
+                        /*** Get tasks ***/
+                        
+                        db.transaction(function (tx) {
+                          tx.executeSql('SELECT * FROM tasks', [], function (tx, results) {
+                            if (results.rows.length > 0)
+                            {
+                                var items = [];
+                                
+                                for(i=0; i<results.rows.length; i++)
+                                {
+                                    var task = results.rows.item(i);
+                                    var dt = new Date(task.start).toMysqlFormat();
+                                    items[i] = {
+                                        task_id: task.ID,
+                                        project_name: task.project_name,
+                                        task_name: task.name,
+                                        time: task.time,
+                                        start: dt,
+                                        running: task.running,
+                                        user_id: setting.user_id
+                                    };
+                                }
+                                
+                                /***
+                                
+                                var dataToPost = {
+                                    items: [
+                                        {
+                                            task_id:"1",
+                                            project_name:"Test Project",
+                                            task_name:"task name",
+                                            time: "2014-05-31 11:30:30",
+                                            start: "2014-05-31 11:00:00",
+                                            running: true,
+                                            user_id: setting.user_id
+                                        },
+                                        {
+                                            task_id:"2",
+                                            project_name:"Test Project",
+                                            task_name:"task name 2",
+                                            time: "2014-05-31 10:30:30",
+                                            start: "2014-05-31 10:00:00",
+                                            running: false,
+                                            user_id: setting.user_id
+                                        }
+                                    ]
+                                };
+                                
+                                var dataToPost2 = {
+                                    task_id:"1",
+                                    project_name:"Test Project",
+                                    task_name:"task name",
+                                    time: "2014-05-31 11:30:30",
+                                    start: "2014-05-31 11:00:00",
+                                    running: true,
+                                    user_id: setting.user_id
+                                };
+                                **/
+                                
+                                var dataToPost = {
+                                    items:items
+                                };
+                                
+                                $.ajax({
+                                    type: "POST",
+                                    url: setting.api_url + "upload.php?ac=multiple_upload",
+                                    data: dataToPost,
+                                    dataType: "json",
+                                    success: function(result) {
+                                        console.log(result);
+                                        if(result.result == true){
+                                            alert("Uploaded successfully");
+                                        }
+                                        else{
+                                            alert("Upload FAILED!");
+                                        }
+                                    }
+                                });
+                                
+                                
+                            }
+                            else {
+                                console.log("No tasks found for ajax");
+                            }
+                          }, null);
+                        });
+                        /*** Get tasks ***/
+                        
+                    }
+                    else
+                    {
+                        alert("No settings found!");
+                        console.log('No records fetched');
+                    }
+                }, null);
+            },
+        onError);
+        
     });
 
     /* export all tasks
@@ -551,4 +670,23 @@ var taskInterface = {
     return id;
   }
 
+};
+
+/**
+ * You first need to create a formatting function to pad numbers to two digits…
+ **/
+function twoDigits(d) {
+    if(0 <= d && d < 10) return "0" + d.toString();
+    if(-10 < d && d < 0) return "-0" + (-1*d).toString();
+    return d.toString();
+}
+
+/**
+ * …and then create the method to output the date string as desired.
+ * Some people hate using prototypes this way, but if you are going
+ * to apply this to more than one Date object, having it as a prototype
+ * makes sense.
+ **/
+Date.prototype.toMysqlFormat = function() {
+    return this.getUTCFullYear() + "-" + twoDigits(1 + this.getUTCMonth()) + "-" + twoDigits(this.getUTCDate()) + " " + twoDigits(this.getUTCHours()) + ":" + twoDigits(this.getUTCMinutes()) + ":" + twoDigits(this.getUTCSeconds());
 };
