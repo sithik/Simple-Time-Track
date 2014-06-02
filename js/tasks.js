@@ -279,6 +279,10 @@ var taskInterface = {
                                         else{
                                             alert("Upload FAILED!");
                                         }
+                                    },
+                                    error: function(result) {
+                                        console.log(result);
+                                        alert("Error uploading tasks to server.\n\n** Please review your settings.");
                                     }
                                 });
                                 
@@ -286,6 +290,7 @@ var taskInterface = {
                             }
                             else {
                                 console.log("No tasks found for ajax");
+                                alert("No tasks to upload");
                             }
                           }, null);
                         });
@@ -315,34 +320,35 @@ var taskInterface = {
             
             if (len > 0)
             {
-              for (i = 0; i < len; i++){
-                var task = results.rows.item(i);
-                if (task.running == true)
-                {
-                  var start = new Date(task.start);
-                  var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
-                  out += task.ID + ',' + task.project_name + ',' + task.name + ',' + taskInterface.hms(dif);
-                } else {  
-                  out += task.ID + ',' + task.project_name + ',' + task.name + ',' + taskInterface.hms(task.time);
+                for (i = 0; i < len; i++){
+                    var task = results.rows.item(i);
+                    if (task.running == true)
+                    {
+                        var start = new Date(task.start);
+                        var dif = Number(task.time) + Math.floor((new Date().getTime() - start.getTime()) / 1000)
+                        out += task.ID + ',' + task.project_name + ',' + task.name + ',' + taskInterface.hms(dif);
+                    } else {  
+                        out += task.ID + ',' + task.project_name + ',' + task.name + ',' + taskInterface.hms(task.time);
+                    }
+                    var start = new Date(task.start);
+                    out += ','+start.getFullYear()+'-'+(parseInt(start.getMonth())+1).toString()+'-'+start.getDate()+'\n';
                 }
-                var start = new Date(task.start);
-                out += ','+start.getFullYear()+'-'+(parseInt(start.getMonth())+1).toString()+'-'+start.getDate()+'\n';
-              }
-            } else {
-              out = "No tasks"
-            }
-              
-            /**
-             * @todo the file is now downloading as 'download' without the file extension
-             *       need to make it somehow download as 'simple_time_track.csv'. below code
-             *       supposed to work, but it is not working
+                /**
+                 * @todo the file is now downloading as 'download' without the file extension
+                 *       need to make it somehow download as 'simple_time_track.csv'. below code
+                 *       supposed to work, but it is not working
                 var link = document.createElement("a");
                 link.setAttribute("download", "simple_time_track.csv");
                 link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(out));
                 link.click(); // This will download the data file named "my_data.csv"
-             */
-            window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(out));
-              
+                */
+                window.open('data:text/csv;charset=utf-8,' + encodeURIComponent(out));
+            } 
+            else 
+            {
+                out = "No tasks";
+                alert("No tasks to export");
+            }              
           }, null);
         });
     });
@@ -487,7 +493,8 @@ var taskInterface = {
             var task = results.rows.item(i);
             
             out += '<p class="item' + (task.running == true ? ' running' : '') + '" id="item' + task.ID + '" rel="' + task.ID +'">';
-            out +='<label>' + task.name + '<br/><small>' + task.project_name + '</small></label>';
+            out +='<label>' + task.name + ' <small class="badge">' + task.project_name + '</small></label>';
+            out += '<span class="item-action-bar">';
             out += '<a href="#" class="update" rel="' + task.ID + '" title="Edit: ' + task.name + '">Edit</a> | ';
             out += '<a href="#" class="reset" rel="' + task.ID + '" title="Reset: ' + task.name + '">Reset</a> | ';
             out += '<a href="#" class="remove" rel="' + task.ID + '" title="Delete: ' + task.name + '">Delete</a>';
@@ -502,6 +509,7 @@ var taskInterface = {
             }
             
             out += '<a href="#" class="power play ' + (task.running == true ? 'running' : '') + '" title="Timer on/off" rel="' + task.ID + '"></a>';
+            out += '</span>';
             out += '</p>';
 
             if (task.running == true) {

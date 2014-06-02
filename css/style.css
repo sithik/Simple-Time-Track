@@ -92,7 +92,7 @@ input[type=text] {	border: solid 1px #D6D6BE;	background-color: #fcfff4;	padding
 input[type=text]:focus {	border: solid 1px #fff286;	background-color: #fff;}
 
 .form {overflow-y: auto;}
-.form label {	display: block;	font-weight: bold;text-align: left; font-size: 16px;}
+.form label {	display: block;	font-weight: bold;text-align: left; font-size: 13px;}
 .form label small { font-size: 10px !important;}
 
 
@@ -105,10 +105,15 @@ input[type=text]:focus {	border: solid 1px #fff286;	background-color: #fff;}
 /* item
 ----------------------------------------------------------------------------- */
 
-.item {text-align: left;border-bottom: solid 1px #ccc; padding: 14px 12px!important; position: relative; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#efefef)); display:block; overflow:hidden;}
-.item a.power {background: url(../img/play.png) 0 0 no-repeat; 	display: block; position: absolute;	right: 3px; width: 32px;height: 32px; bottom: 14px;right: 10px;}
+.item {text-align: left;border-bottom: solid 1px #ccc; padding: 7px 12px!important; position: relative; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#efefef)); display:block; overflow:hidden;}
+.item a.power {background: url(../img/play.png) 0 0 no-repeat; 	display: block; position: absolute;	right: 3px; width: 32px;height: 32px; bottom: 9px;right: 10px;}
 .item a.running {background: url(../img/pause.png) 0 0 no-repeat;}
-.item span.timer{	position: absolute;	right: 50px;	top: 23px; font-size: 17px;}
+.item span.timer{
+    position: relative;
+    right: -190px;
+    top: 2px;
+    font-size: 17px;
+}
 p.running {background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fcfff4), color-stop(100%,#e9e9ce));}
 
 /* other elements
@@ -129,3 +134,18 @@ p.remove-confirm strong {color:#333;}
 #footer {background:#fefefe;color:#bbb;margin:0; padding:5px; border-top: 1px solid #eee;}
 #footer a {color:#bbb;}
 #footer a:hover {color:#333;}
+
+/* other
+----------------------------------------------------------------------------- */
+.badge {
+    display: inline-block;
+    padding: 2px 4px;
+    font-size: 11.844px;
+    font-weight: bold;
+    line-height: 14px;
+    color: #ffffff;
+    white-space: nowrap;
+    vertical-align: baseline;
+    background-color: #3a87ad;
+    border-radius: 3px;
+}
