@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `".DB_TABLE_PREFIX."timesheet` (
   `start` datetime NOT NULL,
   `running` tinyint(1) NOT NULL,
   `user_id` varchar(100) NOT NULL,
+  `upload_date` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
 ";

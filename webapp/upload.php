@@ -11,7 +11,7 @@ if($_GET['ac'] == "single_upload") {
     INSERT INTO 
     `".DB_TABLE_PREFIX."timesheet` 
     (
-    `task_id`, `project_name`, `task_name`, `time`, `start`, `running`, `user_id`
+    `task_id`, `project_name`, `task_name`, `time`, `start`, `running`, `user_id`,`upload_date`
     )
     VALUES (
     '". mysql_escape_string($_POST['task_id']) ."',
@@ -20,7 +20,8 @@ if($_GET['ac'] == "single_upload") {
     '". mysql_escape_string($_POST['time']) ."',
     '". mysql_escape_string($_POST['start']) ."',
     '". mysql_escape_string($_POST['running']) ."',
-    '". mysql_escape_string($_POST['user_id']) ."'
+    '". mysql_escape_string($_POST['user_id']) ."',
+    '". mysql_escape_string(date('Y-m-d H:i:s')) ."',
     );
     ";
     
@@ -59,7 +60,8 @@ elseif($_GET['ac'] == "multiple_upload") {
 function update_or_insert($task = array()){
     $where = array(
         "task_id" => $task['task_id'],
-        "user_id" => $task['user_id']
+        "user_id" => $task['user_id']//,
+        //"start LIKE" => date("Y-m-d",strtotime($task['start']))."%"
     );
     $data = array(
         "project_name"  => $task['project_name'],
@@ -68,8 +70,13 @@ function update_or_insert($task = array()){
         "start"         => $task['start'],
         "running"       => $task['running'],
         "task_id"       => $task['task_id'],
-        "user_id"       => $task['user_id']
+        "user_id"       => $task['user_id'],
+        "upload_date"   => date("Y-m-d H:i:s")
     );
+    
+    $id = crud_insert(DB_TABLE_PREFIX."timesheet",$data);
+    return $task['task_id'];
+    /**
     $records = crud_get(DB_TABLE_PREFIX."timesheet",$where);
     if($records != false)
     {
@@ -79,7 +86,8 @@ function update_or_insert($task = array()){
     else{
         $id = crud_insert(DB_TABLE_PREFIX."timesheet",$data);
     }
-    return $id;
+    return $task['task_id'];
+    **/
 }
 
 ?>

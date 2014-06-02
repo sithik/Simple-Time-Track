@@ -114,7 +114,7 @@ input[type=text]:focus {	border: solid 1px #fff286;	background-color: #fff;}
     top: 2px;
     font-size: 17px;
 }
-p.running {background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fcfff4), color-stop(100%,#e9e9ce));}
+p.running {background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fcfff4), color-stop(100%,#ECE054));}
 
 /* other elements
 ----------------------------------------------------------------------------- */

@@ -77,7 +77,13 @@ var tasks = {
   update : function () {
     
   },
-  
+  reset : function (id) {
+    db.transaction(function(tx) {
+      tx.executeSql("UPDATE tasks SET time = ? WHERE id = ?", [0 , id], function (tx, results) {
+        taskInterface.index();
+      }, onError);
+    });
+  },
   remove : function (id) {
     db.transaction(function(tx) {
       tx.executeSql("DELETE FROM tasks WHERE id=?", [id],
@@ -275,6 +281,10 @@ var taskInterface = {
                                         console.log(result);
                                         if(result.result == true){
                                             alert("Uploaded successfully");
+                                            for(i=0; i<=result.success_entries.length; i++)
+                                            {
+                                                tasks.reset(result.success_entries[i]);
+                                            }
                                         }
                                         else{
                                             alert("Upload FAILED!");
