@@ -452,16 +452,17 @@ var taskInterface = {
 
     $(".reset").live("click", function (e) {
       e.preventDefault();
-      $(".form").hide();
+      if(confirm("Are you sure you want to reset this time?")){
+          $(".form").hide();
 
-      var id  = $(this).attr("rel");
-      
-      db.transaction(function(tx) {
-        tx.executeSql("UPDATE tasks SET time = ? WHERE id = ?", [0 , id], function (tx, results) {
-          taskInterface.index();
-        }, onError);
-      });
-      
+          var id  = $(this).attr("rel");
+          
+          db.transaction(function(tx) {
+            tx.executeSql("UPDATE tasks SET time = ? WHERE id = ?", [0 , id], function (tx, results) {
+              taskInterface.index();
+            }, onError);
+          });
+      }
     });
     
    

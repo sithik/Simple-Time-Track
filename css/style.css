@@ -8,17 +8,63 @@ a {text-decoration: none;color:#555;}
 
 #bar {	padding:0.8em 1em; overflow:auto; background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#efefef)); border-bottom: 1px solid #e0e0e0;}
 #bar .remove-all {float:right!important;}
+#bar .settings {float:right!important;}
 #bar .create {float:left!important;}
-#bar .export-all {float:left!important; margin-left:10px;}
-#bar .remove-all span {background: transparent url(../img/delete.png) 50% 50% no-repeat; display:block; width: 20px; height:28px; float:left; margin: 0 10px 0 0;}
-#bar .create span {background: transparent url(../img/new.png) 50% 50% no-repeat; display:block; width: 16px; height:28px; float:left; margin: 0 10px 0 0;}
+#bar .export-all {float:left!important;}
+#bar .upload {float:left!important;}
+
+#bar .export-all span {
+    background: transparent url(../img/icons/export-24.png) 50% 50% no-repeat; 
+    display:block;
+    float:left!important; 
+    width: 24px; 
+    height:28px; 
+    float:left; 
+    margin: 0 0 0 0;
+}
+#bar .upload span {
+    background: transparent url(../img/icons/cloud-upload-24.png) 50% 50% no-repeat; 
+    display:block;
+    float:left!important; 
+    width: 24px; 
+    height:28px; 
+    float:left; 
+    margin: 0 0 0 0;
+}
+#bar .settings span {
+    background: transparent url(../img/icons/98-24.png) 50% 50% no-repeat; 
+    display:block;
+    float:left!important; 
+    width: 24px; 
+    height:28px; 
+    float:left; 
+    margin: 0 0 0 0;
+}
+#bar .remove-all span {
+    background: transparent url(../img/icons/editor_trash_delete_recycle_bin_-24.png) 50% 50% no-repeat; 
+    display:block;
+    float:left!important; 
+    width: 20px; 
+    height:28px; 
+    float:left; 
+    margin: 0 0 0 0;
+}
+
+#bar .create span {
+    background: transparent url(../img/icons/new-24-24.png) 50% 50% no-repeat;
+    display:block; 
+    width: 24px; 
+    height:28px; 
+    float:left; 
+    margin: 0 10px 0 0;
+}
 
 /* buttons
 ----------------------------------------------------------------------------- */
 
 input[type=button],
 input[type=submit],
-#bar a.button {color:#444;text-decoration: none;display: block; padding:0 17px;font-weight: bold; line-height: 28px;
+#bar a.button {color:#444;text-decoration: none;display: block; padding:0 7px;font-weight: bold; line-height: 28px;
                border-radius:3px;
                background: #ffffff;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#EAEAEA));
                border: 1px solid #eee;
@@ -27,6 +73,7 @@ input[type=submit],
                border:1px solid #ddd;
                position: relative;
                cursor: pointer;
+               margin-right:10px;
 }
 #bar a.button:active {top:1px;}
 
